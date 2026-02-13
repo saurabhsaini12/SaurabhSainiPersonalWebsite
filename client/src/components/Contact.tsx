@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertContactMessageSchema, type InsertContactMessage } from "@shared/schema";
-import { useSubmitContact } from "@/hooks/use-contact";
+import { contactMessageSchema, type ContactMessage, useSubmitContact } from "@/hooks/use-contact";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import {
@@ -19,8 +18,8 @@ import { Button } from "@/components/ui/button";
 export function Contact() {
   const mutation = useSubmitContact();
   
-  const form = useForm<InsertContactMessage>({
-    resolver: zodResolver(insertContactMessageSchema),
+  const form = useForm<ContactMessage>({
+    resolver: zodResolver(contactMessageSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -28,7 +27,7 @@ export function Contact() {
     },
   });
 
-  const onSubmit = (data: InsertContactMessage) => {
+  const onSubmit = (data: ContactMessage) => {
     mutation.mutate(data, {
       onSuccess: () => {
         form.reset();
@@ -49,7 +48,7 @@ export function Contact() {
               I'm always open to new opportunities and challenges.
             </p>
 
-            <div className="space-y-6">
+            <div className="space-y-6 mb-12">
               <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-muted/50 transition-colors">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                   <Mail className="w-5 h-5" />
@@ -86,8 +85,85 @@ export function Contact() {
                 </div>
               </div>
             </div>
-          </div>
 
+            {/* Contact Form */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="mt-8 p-6 rounded-xl bg-muted/30 border border-border"
+            >
+              <h3 className="text-xl font-semibold mb-6">Send me a message</h3>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="your.email@example.com" type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Message</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Tell me about your project or opportunity..." 
+                            className="min-h-[120px]"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Message
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </motion.div>
+          </div>
 
         </div>
       </div>
